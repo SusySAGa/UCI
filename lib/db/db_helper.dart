@@ -6,47 +6,34 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'package:sqflite/sqflite.dart';
 
 class DbHelper {
-  //static Future<Database> _openDB() async {
-  //  return openDatabase(rootBundle.load(join('assets', 'dictionary')));
-  //}
-
   static Future<Database> openDB() async {
     WidgetsFlutterBinding.ensureInitialized();
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'espPeligro.db');
-    ByteData data = await rootBundle.load(join('assets/db', 'espPeligro.db'));
-    List<int> bytes =
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    final path = join(await getDatabasesPath(), 'espPeligro.db');
 
-    // Save copied asset to documents
-    await new File(path).writeAsBytes(bytes);
-    var theDb = await openDatabase(path, version: 4, onUpgrade: _onUpgrade);
-    return theDb;
-  }
+    var exists = await File(path).exists();
 
-  static void _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    var batch = db.batch();
-    if (oldVersion < newVersion) {
-      Directory documentsDirectory = await getApplicationDocumentsDirectory();
-      String path = join(documentsDirectory.path, "espPeligro.db");
+    if (!exists) {
       ByteData data = await rootBundle.load(join('assets/db', 'espPeligro.db'));
       List<int> bytes =
           data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
 
       // Save copied asset to documents
-      await new File(path).writeAsBytes(bytes);
+      await File(path).writeAsBytes(bytes);
     }
-    await batch.commit();
+    var theDb = await openDatabase(
+      path,
+    );
+    return theDb;
   }
 
-  static Future<List<EspecieModel>> especies() async {
+  static Future<List<EspecieModel>> especies(String query) async {
     Database db = await openDB();
-    final List<Map<String, dynamic>> maps = await db.query('especies');
+    final List<Map<String, dynamic>> maps = await db.query('especies',
+        where: 'nombre_especie LIKE ?', whereArgs: ['%$query%']);
     // Convert the List<Map<String, dynamic> into a List.
     return List.generate(
         maps.length,
@@ -63,10 +50,11 @@ class DbHelper {
             ));
   }
 
-  static Future<List<EspecieModel>> especiesFav() async {
+  static Future<List<EspecieModel>> especiesFav(String query) async {
     Database db = await openDB();
-    final List<Map<String, dynamic>> maps =
-        await db.query('especies', where: 'favorito = 1');
+    final List<Map<String, dynamic>> maps = await db.query('especies',
+        where: 'favorito = 1  AND nombre_especie LIKE ?',
+        whereArgs: ['%$query%']);
     // Convert the List<Map<String, dynamic> into a List.
     return List.generate(
         maps.length,
@@ -83,9 +71,22 @@ class DbHelper {
             ));
   }
 
-  static Future<List<ProgramaModel>> programas() async {
+  static Future<void> addFav(int? itemId) async {
     Database db = await openDB();
-    final List<Map<String, dynamic>> maps = await db.query('programa');
+    await db.update("especies", {"favorito": 1},
+        where: "id_especie = ?", whereArgs: [itemId]);
+  }
+
+  static Future<void> removeFav(int? itemId) async {
+    Database db = await openDB();
+    await db.update("especies", {"favorito": 0},
+        where: "id_especie = ?", whereArgs: [itemId]);
+  }
+
+  static Future<List<ProgramaModel>> programas(String query) async {
+    Database db = await openDB();
+    final List<Map<String, dynamic>> maps = await db.query('programa',
+        where: 'nombre_programa LIKE ?', whereArgs: ['%$query%']);
     // Convert the List<Map<String, dynamic> into a List.
     return List.generate(
         maps.length,

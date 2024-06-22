@@ -1,8 +1,11 @@
 import 'package:FaunaRojaCu/components/constant.dart';
+import 'package:FaunaRojaCu/components/settings_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AjustesApp extends StatefulWidget {
-  const AjustesApp({super.key});
+  final SettingsController settingsController;
+  const AjustesApp({super.key, required this.settingsController});
 
   @override
   State<AjustesApp> createState() => _AjustesAppState();
@@ -10,15 +13,37 @@ class AjustesApp extends StatefulWidget {
 
 class _AjustesAppState extends State<AjustesApp> {
   double _tamannoLetra = 20.0;
-  bool clickedButton = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFontSize();
+  }
+
+  Future<void> _loadFontSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    final fontSize = prefs.getDouble('fontSize');
+    if (fontSize != null) {
+      setState(() {
+        _tamannoLetra = fontSize;
+      });
+    }
+  }
+
+  Future<void> _saveFontSize(double fontSize) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('fontSize', fontSize);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 350,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: widget.settingsController.themeMode == ThemeMode.light
+            ? containerLightModeColor
+            : containerDarkModeColor,
+        borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30), topRight: Radius.circular(30)),
       ),
       child: SingleChildScrollView(
@@ -71,7 +96,9 @@ class _AjustesAppState extends State<AjustesApp> {
                       ),
                       Text(
                         "Tamaño de letra",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
                       ),
                     ],
                   ),
@@ -85,8 +112,21 @@ class _AjustesAppState extends State<AjustesApp> {
                       onChanged: (value) {
                         setState(() {
                           _tamannoLetra = value;
+                          _saveFontSize(value);
                         });
                       }),
+
+                  const SizedBox(
+                    height: 15,
+                  ),
+
+                  //ejemplo de tamaño de letra
+                  Text(
+                    "Ejemplo",
+                    style: TextStyle(
+                      fontSize: _tamannoLetra,
+                    ),
+                  ),
 
                   const SizedBox(
                     height: 30,
@@ -98,12 +138,16 @@ class _AjustesAppState extends State<AjustesApp> {
                     children: [
                       IconButton(
                           onPressed: () {
-                            setState(() {
-                              clickedButton = !clickedButton;
-                            });
+                            widget.settingsController.setThemeMode(
+                              widget.settingsController.themeMode ==
+                                      ThemeMode.light
+                                  ? ThemeMode.dark
+                                  : ThemeMode.light,
+                            );
                           },
                           icon: Icon(
-                            (clickedButton == true)
+                            (widget.settingsController.themeMode ==
+                                    ThemeMode.light)
                                 ? Icons.nightlight
                                 : Icons.sunny,
                             color: primaryColor,
@@ -112,11 +156,10 @@ class _AjustesAppState extends State<AjustesApp> {
                         width: 35,
                       ),
                       Text(
-                        (clickedButton == true)
+                        (widget.settingsController.themeMode == ThemeMode.light)
                             ? 'Modo nocturno'
                             : 'Modo diurno',
                         style: const TextStyle(
-                          color: Colors.black,
                           fontSize: 20,
                         ),
                       ),

@@ -1,30 +1,30 @@
+import 'package:FaunaRojaCu/components/settings_controller.dart';
 import 'package:FaunaRojaCu/screens/especie/view/especie_screen.dart';
 import 'package:FaunaRojaCu/screens/favorito/view/favorito_screen.dart';
 import 'package:FaunaRojaCu/screens/programa/view/programa_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:FaunaRojaCu/components/constant.dart';
 import 'package:FaunaRojaCu/screens/home/view/appbar.dart';
-import 'package:FaunaRojaCu/screens/home/view/searchbar.dart';
 import 'package:FaunaRojaCu/screens/menu/menu.dart';
 import 'package:FaunaRojaCu/db/db_helper.dart';
 
 class Home extends StatefulWidget {
-  const Home({
-    super.key,
-  });
+  final SettingsController settingsController;
+  const Home({super.key, required this.settingsController});
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+
   final _title = ['Especies', 'Programas', 'Favoritos'];
-  DbHelper dbHelper = new DbHelper();
+  DbHelper dbHelper = DbHelper();
 
   @override
   void initState() {
     super.initState();
-
+    widget.settingsController.loadSettings();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       setState(() {});
@@ -40,9 +40,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       //menu
-      drawer: const MenuApp(),
+      drawer: MenuApp(settingsController: widget.settingsController),
       //appbar
       appBar: Appbar(
         newtitle: _title[_tabController.index],
@@ -54,7 +53,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             children: [
               //tabBar
               TabBar(
-                padding: EdgeInsets.fromLTRB(0, 30, 0, 30),
+                padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
                 controller: _tabController,
                 tabs: const [
                   Tab(
@@ -77,18 +76,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 indicatorColor: selectedColor,
               ),
 
-              //barra de busqueda
-              const SearchBarApp(),
-
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
 
               Expanded(
-                child: TabBarView(controller: _tabController, children: const [
-                  ListaEspecie(),
-                  ListaPrograma(),
-                  ListaFavorito(),
+                child: TabBarView(controller: _tabController, children: [
+                  ListaEspecie(settingsController: widget.settingsController),
+                  ListaPrograma(settingsController: widget.settingsController),
+                  ListaFavorito(settingsController: widget.settingsController),
                 ]),
               ),
             ],

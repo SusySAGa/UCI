@@ -1,9 +1,11 @@
 import 'package:FaunaRojaCu/components/constant.dart';
+import 'package:FaunaRojaCu/components/settings_controller.dart';
 import 'package:FaunaRojaCu/screens/home/view/home.dart';
 import 'package:flutter/material.dart';
 
 class Bienvenida extends StatefulWidget {
-  const Bienvenida({super.key});
+  final SettingsController settingsController;
+  const Bienvenida({super.key, required this.settingsController});
 
   @override
   State<Bienvenida> createState() => _BienvenidaState();
@@ -17,7 +19,9 @@ class _BienvenidaState extends State<Bienvenida> {
     Future.delayed(d, () {
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const Home()),
+          MaterialPageRoute(
+              builder: (context) =>
+                  Home(settingsController: widget.settingsController)),
           (route) => false);
     });
   }

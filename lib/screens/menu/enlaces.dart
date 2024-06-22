@@ -1,8 +1,11 @@
 import 'package:FaunaRojaCu/components/constant.dart';
+import 'package:FaunaRojaCu/components/settings_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Enlaces extends StatefulWidget {
-  const Enlaces({super.key});
+  final SettingsController settingsController;
+  const Enlaces({super.key, required this.settingsController});
 
   @override
   State<Enlaces> createState() => _EnlacesState();
@@ -13,9 +16,11 @@ class _EnlacesState extends State<Enlaces> {
   Widget build(BuildContext context) {
     return Container(
       height: 350,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: widget.settingsController.themeMode == ThemeMode.light
+            ? containerLightModeColor
+            : containerDarkModeColor,
+        borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30), topRight: Radius.circular(30)),
       ),
       child: Column(
@@ -62,7 +67,10 @@ class _EnlacesState extends State<Enlaces> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     IconButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          await launch(
+                              'https://www.citma.gob.cu/'); // Abrir la URL en el navegador
+                        },
                         icon: const Icon(
                           Icons.link,
                           color: primaryColor,
@@ -73,7 +81,35 @@ class _EnlacesState extends State<Enlaces> {
                     const Text(
                       'citma.gob.cu',
                       style: TextStyle(
-                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(
+                  height: 30,
+                ),
+
+                //enlace 2
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    IconButton(
+                        onPressed: () async {
+                          await launch(
+                              'https://www.iucnredlist.org/es/search/grid'); // Abrir la URL en el navegador
+                        },
+                        icon: const Icon(
+                          Icons.link,
+                          color: primaryColor,
+                        )),
+                    const SizedBox(
+                      width: 35,
+                    ),
+                    const Text(
+                      'iucnredlist.org',
+                      style: TextStyle(
                         fontSize: 20,
                       ),
                     ),

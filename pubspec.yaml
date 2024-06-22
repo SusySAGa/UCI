@@ -39,6 +39,9 @@ dependencies:
   path_provider: ^2.1.3
   path: ^1.9.0
   flutter_launcher_icons: ^0.13.1
+  url_launcher: ^6.3.0
+  
+  shared_preferences: 2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +73,7 @@ flutter:
   assets:
   - assets/db/espPeligro.db
   - assets/icon/logo.png
+  - assets/imagen/especies/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

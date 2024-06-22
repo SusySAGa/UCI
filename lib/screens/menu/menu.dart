@@ -1,17 +1,24 @@
 import 'package:FaunaRojaCu/components/constant.dart';
+import 'package:FaunaRojaCu/components/settings_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:FaunaRojaCu/screens/menu/acercade.dart';
 import 'package:FaunaRojaCu/screens/menu/ajustes.dart';
 import 'package:FaunaRojaCu/screens/menu/enlaces.dart';
 
 class MenuApp extends StatefulWidget {
-  const MenuApp({super.key});
+  final SettingsController settingsController;
+  const MenuApp({super.key, required this.settingsController});
 
   @override
   State<MenuApp> createState() => _MenuState();
 }
 
 class _MenuState extends State<MenuApp> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -53,7 +60,8 @@ class _MenuState extends State<MenuApp> {
                   enableDrag: false,
                   isDismissible: false,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => const AjustesApp());
+                  builder: (context) => AjustesApp(
+                      settingsController: widget.settingsController));
               //Scaffold.of(context)
               //.showBottomSheet((context) => const AjustesApp());
               // ...
@@ -72,7 +80,8 @@ class _MenuState extends State<MenuApp> {
                   enableDrag: false,
                   isDismissible: false,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => const AcercaDe());
+                  builder: (context) =>
+                      AcercaDe(settingsController: widget.settingsController));
               // ...
             },
           ),
@@ -89,7 +98,8 @@ class _MenuState extends State<MenuApp> {
                   enableDrag: false,
                   isDismissible: false,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => const Enlaces());
+                  builder: (context) =>
+                      Enlaces(settingsController: widget.settingsController));
               // ...
             },
           ),

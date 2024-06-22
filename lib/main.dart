@@ -1,33 +1,43 @@
 import 'package:FaunaRojaCu/bienvenida.dart';
+import 'package:FaunaRojaCu/components/settings_controller.dart';
+import 'package:FaunaRojaCu/components/settings_service.dart';
 import 'package:flutter/material.dart';
-import 'package:FaunaRojaCu/components/theme_constants.dart';
+
 import 'package:FaunaRojaCu/screens/home/view/home.dart';
-import 'package:FaunaRojaCu/viewmodel/theme_manager.dart';
+
 import 'package:flutter/services.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final settingsController = SettingsController(SettingsService());
+  await settingsController.loadSettings();
+
+  runApp(MyApp(settingsController: settingsController));
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
-    runApp(MyApp());
+    runApp(MyApp(settingsController: settingsController));
   });
 }
 
-ThemeManager _themeManager = ThemeManager();
-
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  MyApp({super.key, required this.settingsController});
+  final SettingsController settingsController;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: _themeManager.themeMode,
-      home: const Bienvenida(),
-      routes: {
-        '/home': (context) => const Home(),
+    return ListenableBuilder(
+      listenable: settingsController,
+      builder: (BuildContext context, Widget? child) {
+        return MaterialApp(
+          theme: settingsController.lightTheme, // Tema claro
+          darkTheme: settingsController.darkTheme,
+          themeMode: settingsController.themeMode,
+          debugShowCheckedModeBanner: false,
+          home: Bienvenida(settingsController: settingsController),
+          routes: {
+            '/home': (context) => Home(settingsController: settingsController),
+          },
+        );
       },
     );
   }

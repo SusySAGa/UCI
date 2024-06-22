@@ -1,10 +1,40 @@
 import 'package:FaunaRojaCu/components/constant.dart';
+import 'package:FaunaRojaCu/components/settings_controller.dart';
 import 'package:FaunaRojaCu/models/especie.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DetalleEspecie extends StatelessWidget {
-  DetalleEspecie({super.key, required this.especieModel});
+class DetalleEspecie extends StatefulWidget {
+  final SettingsController settingsController;
+  const DetalleEspecie(
+      {super.key,
+      required this.especieModel,
+      required this.settingsController});
+
   final EspecieModel especieModel;
+
+  @override
+  State<DetalleEspecie> createState() => _DetalleEspecieState();
+}
+
+class _DetalleEspecieState extends State<DetalleEspecie> {
+  double _tamannoLetra = 20.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFontSize();
+  }
+
+  Future<void> _loadFontSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    final fontSize = prefs.getDouble('fontSize');
+    if (fontSize != null) {
+      setState(() {
+        _tamannoLetra = fontSize;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,120 +46,120 @@ class DetalleEspecie extends StatelessWidget {
           children: [
             Container(
               height: 400,
-              decoration: BoxDecoration(color: primaryColor),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                      widget.especieModel.imagen ?? "assets/icon/logo.png"),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             Positioned(
-              top: 300,
+              top: 350,
               child: Container(
-                height: 500,
+                height: MediaQuery.of(context).size.height - 350,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30)),
-                    color: backPrimaryColor),
+                  color: widget.settingsController.themeMode == ThemeMode.light
+                      ? containerLightModeColor
+                      : containerDarkModeColor,
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30)),
+                ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          especieModel.nombre,
+                          widget.especieModel.nombre,
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
                         Text(
-                          especieModel.nombreCientifico,
+                          widget.especieModel.nombreCientifico,
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 30,
                         ),
-                        const Text(
+                        Text(
                           "Estado de conservación:",
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
-                        Divider(
+                        const Divider(
                           color: primaryColor,
                           thickness: 2,
                         ),
                         Text(
-                          especieModel.estado,
+                          widget.especieModel.estado,
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 30,
                         ),
                         Text(
                           "Descripción:",
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
-                        Divider(
+                        const Divider(
                           color: primaryColor,
                           thickness: 2,
                         ),
                         Text(
-                          especieModel.descripcion,
+                          widget.especieModel.descripcion,
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 30,
                         ),
                         Text(
                           "Amenazas:",
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
-                        Divider(
+                        const Divider(
                           color: primaryColor,
                           thickness: 2,
                         ),
                         Text(
-                          especieModel.amenaza,
+                          widget.especieModel.amenaza,
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 30,
                         ),
                         Text(
                           "Acciones de conservación:",
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
-                        Divider(
+                        const Divider(
                           color: primaryColor,
                           thickness: 2,
                         ),
                         Text(
-                          especieModel.accion,
+                          widget.especieModel.accion,
                           style: TextStyle(
-                            color: textPrimaryColor,
-                            fontSize: 20,
+                            fontSize: _tamannoLetra,
                           ),
                         ),
                       ],
@@ -139,31 +169,22 @@ class DetalleEspecie extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: 300,
-              top: 250,
-              child: Container(
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: secundaryColor,
-                  ),
-                  child:
-                      IconButton(onPressed: () {}, icon: Icon(Icons.favorite))),
-            ),
-            Positioned(
               left: 30,
               top: 10,
               child: Container(
                   height: 100,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: secundaryColor,
                   ),
                   child: IconButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, "/");
+                        Navigator.pop(context, "/");
                       },
-                      icon: Icon(Icons.arrow_left))),
+                      icon: const Icon(
+                        Icons.arrow_left,
+                        color: selectedColor,
+                      ))),
             )
           ],
         ),
